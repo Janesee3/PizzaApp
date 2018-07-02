@@ -21,6 +21,10 @@ let pizzas = [
 ];
 
 // Handlers
+const homeRoute = (req, res) => {
+	res.send("HI CAT");
+};
+
 const getPizzas = (req, res) => {
 	res.send(pizzas);
 };
@@ -82,6 +86,8 @@ const deletePizzaById = (req, res) => {
 			.send({ message: `No pizza with id ${req.params.id} found :(` });
 	}
 };
+
+app.get("/", homeRoute);
 
 // GET /pizzas
 app.get("/pizzas", getPizzas);
