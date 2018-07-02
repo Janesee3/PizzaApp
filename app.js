@@ -30,7 +30,9 @@ const getPizzasById = (req, res) => {
 	if (selectedPizza) {
 		res.send(selectedPizza);
 	} else {
-		res.send({ message: `No pizza with id ${req.params.id} found :(` });
+		res
+			.status(404)
+			.send({ message: `No pizza with id ${req.params.id} found :(` });
 	}
 };
 
@@ -39,9 +41,11 @@ const createPizza = (req, res) => {
 
 	if (pizza.id && pizza.name && pizza.price) {
 		pizzas = [...pizzas, pizza];
-        res.send(pizzas);
+		res.send(pizzas);
 	} else {
-		res.send({ message: "The pizza you wanted to create is incomplete." });
+		res.status(400).send({
+			message: "The pizza you wanted to create has incomplete information."
+		});
 	}
 };
 
@@ -49,33 +53,33 @@ const updatePizzaById = (req, res) => {
 	let originalPizza = pizzas.find(pizza => pizza.id == req.params.id);
 	let newPizza = req.body;
 
-	//If original pizza can be found
+	// If pizza to be updated exists, proceed with update
 	if (originalPizza) {
-		// Create new pizza
-		newPizza = { ...originalPizza, ...newPizza };
-        
-		// Find and replace old pizza in array
-		let indexOfPizza = pizzas.indexOf(originalPizza);
-		pizzas[indexOfPizza] = newPizza;
-
+		pizzas = pizzas.map(pizza => {
+			if (pizza.id == req.params.id) {
+				return { ...originalPizza, ...newPizza };
+			} else {
+				return pizza;
+			}
+		});
 		res.send(newPizza);
 	} else {
-		res.send({ message: `No pizza with id ${req.params.id} found :(` });
+		res
+			.status(404)
+			.send({ message: `No pizza with id ${req.params.id} found :(` });
 	}
 };
 const deletePizzaById = (req, res) => {
-    let toBeDeleted = pizzas.find(pizza => pizza.id == req.params.id);
+	let originalNumOfPizzas = pizzas.length;
+	pizzas = pizzas.filter(pizza => pizza.id !== req.params.id);
 
-	//If pizza can be found
-	if (toBeDeleted) {
-
-		// Find and delete old pizza in array
-		let indexOfPizza = pizzas.indexOf(toBeDeleted);
-		pizzas.splice(indexOfPizza, 1)
-
+	// Array length would be different if a Pizza was successfully filtered out
+	if (pizzas.length !== originalNumOfPizzas) {
 		res.send(pizzas);
 	} else {
-		res.send({ message: `No pizza with id ${req.params.id} found :(` });
+		res
+			.status(404)
+			.send({ message: `No pizza with id ${req.params.id} found :(` });
 	}
 };
 
